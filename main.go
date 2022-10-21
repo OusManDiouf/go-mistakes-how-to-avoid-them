@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"math/rand"
 	"net/http"
 	"time"
@@ -10,21 +9,16 @@ import (
 func main() {
 
 	var client *http.Client
+	var err error
 
 	if getTracing() {
-		c, err := createClientWithTracing()
-		if err != nil {
-			return
-		}
-		client = c
-		log.Println("withTracing: ", client)
+		client, err = createClientWithTracing()
 	} else {
-		c, err := createDefaultClient()
-		if err != nil {
-			return
-		}
-		client = c
-		log.Println("Default: ", client)
+		client, err = createDefaultClient()
+	}
+	// mutualize error handling
+	if err != nil {
+		return
 	}
 	println(client)
 }
