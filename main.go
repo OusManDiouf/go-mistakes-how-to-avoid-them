@@ -12,16 +12,18 @@ func main() {
 	var client *http.Client
 
 	if getTracing() {
-		client, err := createClientWithTracing()
+		c, err := createClientWithTracing()
 		if err != nil {
 			return
 		}
+		client = c
 		log.Println("withTracing: ", client)
 	} else {
-		client, err := createDefaultClient()
+		c, err := createDefaultClient()
 		if err != nil {
 			return
 		}
+		client = c
 		log.Println("Default: ", client)
 	}
 	println(client)
