@@ -5,7 +5,8 @@ import (
 	"runtime"
 )
 
-var store = map[int][]byte{}
+//var store = map[int][]byte{} // look at the next mistake to see why it's inefficient
+var store = make(map[int][]byte, 1_000)
 
 type Foo struct {
 	v []byte
