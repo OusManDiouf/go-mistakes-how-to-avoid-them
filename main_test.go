@@ -1,37 +1,49 @@
 package main
 
 import (
-	"bufio"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 )
 
-func TestCountEmptyLineInFileV1(t *testing.T) {
+func TestCountEmptyLineInFile(t *testing.T) {
 
-	count, err := countEmptyLineInFileV1("file.txt")
+	file, err := os.Open("file.txt")
 	require.NoError(t, err)
-	assert.Equal(t, 5, count, "count not match")
+	count, err := countEmptyLine(file)
+	require.NoError(t, err)
+
+	assert.Equal(t, 5, count)
+}
+func TestCountEmptyLineInHTTPBody(t *testing.T) {
+	req, err := http.NewRequest(http.MethodPost, "/testOne", strings.NewReader(
+		`Try cooking tart marinateed with ketchup, enameled with vodka.How dead.
+
+			You mark like a parrot.`))
+	require.NoError(t, err)
+
+	count, err := countEmptyLine(req.Body)
+	require.NoError(t, err)
+	assert.Equal(t, 1, count)
+
 }
 
-func countEmptyLineInFileV1(filename string) (int, error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return 0, err
-	}
-	defer file.Close()
+func TestCountEmptyLineInStringReader(t *testing.T) {
 
-	count := 0
-	sc := bufio.NewScanner(file) //by default, split the input per line
-	for sc.Scan() {
+	textWithEmptyLine := strings.NewReader(
+		`One must follow the lama in order to synthesise the karma of great thought.
 
-		if sc.Text() == "" {
-			//if len(sc.Text()) == 0 {
-			//if len(sc.Bytes()) == 0 {
-			//if utf8.RuneCountInString(sc.Text()) == 0 {
-			count += 1
-		}
-	}
-	return count, err
+		Corsairs die from madnesses like rough clouds.
+
+		Be ancient for whoever converts, because each has been experienced with courage.
+		Countless honors will be lost in minerals like powerdrains in energies
+
+	`)
+
+	count, err := countEmptyLine(textWithEmptyLine)
+	require.NoError(t, err)
+	assert.Equal(t, 3, count, "count not match")
 }
