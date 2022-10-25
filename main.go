@@ -30,7 +30,6 @@ func stringConcat(values []string) string {
 	}
 	return sb.String()
 }
-
 func optimalStringConcat(values []string) string {
 	total := 0
 	// here we are not interested in the number of runes
