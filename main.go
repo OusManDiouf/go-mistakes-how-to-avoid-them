@@ -2,17 +2,22 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"sync"
 	"sync/atomic"
 )
 
 func main() {
-	for i := 0; i < 10; i++ {
-		nonDeterministicExampleOfAntiDataRace()
-	}
+	//for i := 0; i < 10; i++ {
+	//	nonDeterministicExampleOfAntiDataRace()
+	//}
 	//antiDataRaceV3()
 	//antiDataRaceV2()
 	///antiDataRaceV1()
+	fmt.Println(runtime.GOOS)
+	fmt.Println(runtime.Compiler)
+	fmt.Println(runtime.GOARCH)
+	fmt.Println(runtime.Version())
 }
 
 func nonDeterministicExampleOfAntiDataRace() {
