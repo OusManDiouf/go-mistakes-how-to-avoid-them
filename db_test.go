@@ -1,3 +1,5 @@
+//go:build integration
+
 package main
 
 import (
@@ -5,7 +7,6 @@ import (
 	"testing"
 )
 
-func TestSome(t *testing.T) {
-
+func TestDB(t *testing.T) {
 	assert.True(t, true)
 }
