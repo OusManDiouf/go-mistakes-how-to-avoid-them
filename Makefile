@@ -2,3 +2,6 @@
 # and refer to the local GOBIN to look for the executable
 depgraph:
 	 godepgraph github.com/OusManDiouf/go-mistakes-how-avoid-them | dot -Tpng -o depgraph.png
+
+test:
+	go test -race -v .
