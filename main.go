@@ -1,3 +1,12 @@
+/**
+In this section, we saw two potential memory leak problems.
+The first was about slicing an existing slice or array to preserve the capacity.
+If we handle large slices and reslice them to keep only a fraction, a lot of memory will remain allocated but unused.
+The second problem is that when we use the slicing operation with pointers or structs with pointer fields,
+we need to know that the GC won’t reclaim these elements.
+In that case, the two options are to either perform a copy
+or explicitly mark the remaining elements or their fields to nil.
+*/
 package main
 
 import (
