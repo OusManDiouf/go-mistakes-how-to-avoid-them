@@ -35,6 +35,8 @@ func main() {
 	sameCust1 := customer{ID: "cust1", Operations: []float32{1.}}
 	//fmt.Println("Are the customer the same ? ", cust1 == sameCust1) // the compiler alert us !
 	fmt.Println("Are the customer the same ? ", cust1.equal(sameCust1)) // the compiler alert us !
+	// just exploring floating point operations accurency .
+	// refere to the corresponding chapter: Not understanding floating point
 	fmt.Println(1.0001 * 1.0001)
 	fmt.Println(math.SmallestNonzeroFloat32)
 	fmt.Println(math.MaxFloat64)
