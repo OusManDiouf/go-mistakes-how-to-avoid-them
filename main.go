@@ -14,6 +14,12 @@ const (
 	StatusErrorBar = "error_bar"
 )
 
+type LogCounterMap map[string]int
+
+func (m LogCounterMap) incrementCounter(status string) {
+	m[status] += 1
+}
+
 func main() {
 
 	logger := LogCounterMap{}
@@ -60,10 +66,4 @@ func bar() error {
 		return errors.New("err in bar")
 	}
 	return nil
-}
-
-type LogCounterMap map[string]int
-
-func (m LogCounterMap) incrementCounter(status string) {
-	m[status] += 1
 }
