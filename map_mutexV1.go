@@ -20,14 +20,15 @@ func (c *CacheV1) AddBalance(id string, balance float64) {
 
 func (c *CacheV1) AverageBalance() float64 {
 	c.mu.Lock()
-	balances := c.balances
-	// soluce: if the iteration operation isn't heavy(that's the case here,
-	//we only perform an increment operation), we should protect the whole function
 	defer c.mu.Unlock()
+
+	balances := c.balances
+	// soluce: if the iteration operation isn't heavy(that's the case here, because
+	//we only perform an increment operation), we should protect the whole function
 
 	sum := 0.
 	for _, balance := range balances {
-		sum += balance
+		sum += balance //light operation
 	}
 	return sum / float64(len(balances))
 }
@@ -39,17 +40,21 @@ func (c *CacheV1) Size() int {
 }
 
 func main() {
+	var wg sync.WaitGroup
+	wg.Add(1)
 	cache := CacheV1{
 		mu:       sync.RWMutex{},
 		balances: map[string]float64{},
 	}
-	for i := 0; i < 10000; i++ {
-		i := i
-		go func() {
+	go func() {
+		defer wg.Done()
+		for i := 0; i < 100; i++ {
+			i := i
 			cache.AddBalance(strconv.Itoa(i), float64(i)*200.)
 			fmt.Printf("Adding %v with value %v\n", strconv.Itoa(i), float64(i)*200.)
-		}()
-	}
+		}
+	}()
+	wg.Wait()
 	go func() {
 		averageBalance := cache.AverageBalance()
 		fmt.Println("Average balance: ", averageBalance)
