@@ -1,8 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+	"sync"
+	"time"
+)
 
 func main() {
+
+	rand.Seed(time.Now().UnixNano())
 
 	// this channel is nil. the main goRoutine won't panic.
 	// It will just block FaEver !
@@ -17,38 +24,57 @@ func main() {
 
 	ch1 := make(chan string, 1)
 	ch2 := make(chan string, 1)
+	ch3 := make(chan string, 1)
+	ch4 := make(chan string, 1)
+
+	var wg sync.WaitGroup
+	wg.Add(4)
 
 	//_ = memoryHogChanMerge(ch1, ch2)
 
 	go func() {
-		for i := 0; i < 10; i++ {
-			ch1 <- fmt.Sprintf("ch1=%d", i)
+		defer wg.Done()
+		for i := 1; i <= 10; i++ {
+			// simulating a long running task
+			time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
+			ch1 <- fmt.Sprintf("ch[1][%d]", i)
 		}
 		close(ch1)
 	}()
 	go func() {
-		for i := 0; i < 10; i++ {
-			ch2 <- fmt.Sprintf("ch2=%d", i*10)
+		defer wg.Done()
+
+		for i := 1; i <= 10; i++ {
+			// simulating a long running task
+			time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
+			ch2 <- fmt.Sprintf("ch[2][%d]", i)
 		}
 		close(ch2)
 	}()
 
-	ch3 := make(chan string, 1)
 	go func() {
-		for i := 0; i < 10; i++ {
-			ch3 <- fmt.Sprintf("ch3=%d", i*1000)
+		defer wg.Done()
+
+		for i := 1; i <= 10; i++ {
+			// simulating a long running task
+			time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
+			ch3 <- fmt.Sprintf("ch[3][%d]", i)
 		}
 		close(ch3)
 	}()
 
-	ch4 := make(chan string, 1)
 	go func() {
-		for i := 0; i < 10; i++ {
-			ch4 <- fmt.Sprintf("ch4=%d", i*10000)
+		defer wg.Done()
+
+		for i := 1; i <= 10; i++ {
+			// simulating a long running task
+			time.Sleep(time.Duration(rand.Intn(500)) * time.Millisecond)
+			ch4 <- fmt.Sprintf("ch[4][%d]", i)
 		}
 		close(ch4)
 	}()
 
+	// DRIVER GO ROUTINE - Collect the result of the merge channel
 	ch := ChanMerge(ch1, ch2, ch3, ch4)
 	go func() {
 		for v := range ch {
@@ -57,6 +83,7 @@ func main() {
 		close(ch)
 	}()
 
+	wg.Wait()
 }
 
 func ChanMerge(chs ...chan string) chan string {
@@ -78,12 +105,13 @@ func ChanMerge(chs ...chan string) chan string {
 
 	for i, chi := range chs {
 		go func(i int, chi chan string) {
+			i++
 			for checkChans(chs...) {
 				select {
 				case v, open := <-chi: // this case is removed from the select statement once chi in nil
 					if !open {
 						chi = nil
-						fmt.Println(fmt.Sprintf("ch%d closed", i))
+						fmt.Println(fmt.Sprintf("ch[%d][X]", i))
 						break
 					}
 					ch <- v
@@ -93,39 +121,5 @@ func ChanMerge(chs ...chan string) chan string {
 		}(i, chi)
 	}
 
-	return ch
-}
-
-func memoryHogChanMerge(ch1, ch2 chan int) chan int {
-	/*
-		There is one major issue: when one of the two channels is closed,
-		the for loop will act as a busy-waiting loop,
-		meaning it will keep looping even though no new message
-		is received in the other channel.
-	*/
-	ch := make(chan int, 1)
-	ch1Closed := false
-	ch2Closed := false
-
-	go func() {
-		for {
-			select {
-			case v, open := <-ch1:
-				if !open {
-					ch1Closed = true
-				}
-				ch <- v
-			case v, open := <-ch2:
-				if !open {
-					ch2Closed = true
-				}
-				ch <- v
-			}
-			if ch1Closed && ch2Closed {
-				close(ch)
-				return
-			}
-		}
-	}()
 	return ch
 }
