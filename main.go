@@ -17,9 +17,8 @@ func main() {
 		cond: sync.NewCond(&sync.Mutex{}),
 	}
 
-	// Listener goRoutines
-
-	f := func(goal int) {
+	// Listene goRoutines
+	listenerFunc := func(goal int) {
 		donation.cond.L.Lock()
 		// if the goal is not met yet
 		// First Critical section
@@ -36,8 +35,8 @@ func main() {
 		donation.cond.L.Unlock()
 	}
 
-	go f(10)
-	go f(15)
+	go listenerFunc(10)
+	go listenerFunc(15)
 
 	// Updater goRoutine
 	for {
